@@ -1,0 +1,16 @@
+{
+    "notes": [
+        {"UserID": 0, "name":"PGA Work", "Information":"Empty Bins", "Time": "2019-01-21T19:07:28Z", "Status":"To-Do", "Delegation":"Javarn", "Users":"Javarn"},
+        {"UserID": 0, "name":"PGA Work", "Information":"Vacumm", "Time": "2019-01-21T19:07:28Z", "Status":"To-Do", "Delegation":"Javarn", "Users":"Javarn"}
+
+
+    ],
+    "users": [{
+        "UserID": 0,
+        "FirstName":"Javarn",
+        "LastName":"Tromp",
+        "Age": 19,
+        "PhoneNumber": "544",
+        "EmailAddress": "test"
+    }]
+}
