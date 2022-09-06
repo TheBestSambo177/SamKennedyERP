@@ -4,11 +4,11 @@ package main
 //https://mholt.github.io/json-to-go/
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"strings"
 	"time"
 
 	_ "github.com/lib/pq" // Interface to PostgreSQL library
@@ -66,135 +66,6 @@ type User struct {
 	EmailAddress string `json:"email_address"`
 }
 
-// rng=3 is about 1ms
-func delay(rng int) {
-	for i := 0; i < rng; i++ {
-		for j := 0; j < 1000000; j++ {
-		}
-	}
-}
-
-// binary search
-func binarySearch(arr []Student, inT string) int {
-	low := 0
-	high := len(arr) - 1
-	T := strings.ToLower(inT)
-
-	for low <= high {
-		var mid = low + (high-low)/2                      //middle of the list
-		var midvalue = strings.ToLower(arr[mid].LastName) //get item to match with T
-
-		switch {
-		case midvalue == T:
-			return mid
-		case midvalue < T:
-			low = mid + 1
-		case midvalue > T:
-			high = mid - 1
-		}
-
-	}
-
-	return -1
-}
-
-func merge(fp []Student, sp []Student) []Student {
-	var n = make([]Student, len(fp)+len(sp))
-
-	var fpIndex = 0
-	var spIndex = 0
-	var nIndex = 0
-
-	for fpIndex < len(fp) && spIndex < len(sp) {
-		if fp[fpIndex].LastName < sp[spIndex].LastName {
-			n[nIndex] = fp[fpIndex]
-			fpIndex++
-		} else if sp[spIndex].LastName < fp[fpIndex].LastName {
-			n[nIndex] = sp[spIndex]
-			spIndex++
-		}
-		nIndex++
-	}
-
-	for fpIndex < len(fp) {
-		n[nIndex] = fp[fpIndex]
-		fpIndex++
-		nIndex++
-	}
-
-	for spIndex < len(sp) {
-		n[nIndex] = sp[spIndex]
-		spIndex++
-		nIndex++
-	}
-
-	return n
-}
-
-func mergeSort(arr []Student) []Student {
-	if len(arr) == 1 {
-		return arr
-	}
-
-	var fp = mergeSort(arr[0 : len(arr)/2])
-	var sp = mergeSort(arr[len(arr)/2:])
-	delay(1)
-	return merge(fp, sp)
-
-}
-
-func bubbleSort(arr []Student) []Student {
-	for i := 0; i < len(arr)-1; i++ {
-		for j := 0; j < len(arr)-i-1; j++ {
-			if arr[j].LastName > arr[j+1].LastName {
-				arr[j], arr[j+1] = arr[j+1], arr[j]
-
-			}
-			delay(1)
-		}
-
-	}
-	return arr
-}
-
-func selectionSort(arr []Student) []Student {
-
-	for i := 0; i < len(arr)-1; i++ {
-		var j = i + 1
-
-		var minIndex = i
-
-		if j < len(arr) {
-			if arr[j].LastName < arr[minIndex].LastName {
-				minIndex = j
-			}
-			j++
-			delay(1)
-		}
-
-		if minIndex != i {
-			arr[i], arr[minIndex] = arr[minIndex], arr[i]
-		}
-
-	}
-	return arr
-}
-
-func insertionSort(arr []Student) []Student {
-	for i := 1; i < len(arr); i++ {
-		key := arr[i].LastName
-		keyStruct := arr[i]
-		j := i - 1
-		for j >= 0 && key < arr[j].LastName {
-			arr[j+1] = arr[j]
-			j -= 1
-			delay(1)
-		}
-		arr[j+1] = keyStruct
-	}
-	return arr
-}
-
 // Go custom sorting
 type ByWord []Student
 
@@ -225,6 +96,27 @@ func dump(arr []Note) {
 
 // -----------------------------------------------------------------
 func main() {
+
+	// Create a string that will be used to make a connection later
+	// Note Password has been left out, which is best to avoid issues when using null password
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("Invalid DB arguments, or github.com/lib/pq not installed")
+	}
+
+	defer db.Close() // Housekeeping. Ensure connection is always closed once done
+
+	// Ping database (connection is only established at this point, open only validates arguments passed to it)
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Connection to specified database failed: ", err)
+
+	}
+
+	fmt.Println("Connected successfully")
 
 	var (
 		results listOfNotes
