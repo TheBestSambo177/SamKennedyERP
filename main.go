@@ -119,9 +119,13 @@ func main() {
 
 	fmt.Println("Connected successfully")
 
+	//User querys
 	sqlUser := `SELECT * FROM users LIMIT 100`
-	sqlNotes := `SELECT * FROM notes LIMIT 100`
-	//insertNotes := `Insert into notes (NoteID, UserID, Name, Information, Time, Status, Delegation, Users) Values (2, 7, 'test', 'test', 'test', 'test', 'test', 'test')`
+
+	//Note querys
+	//sqlNotes := `SELECT * FROM notes LIMIT 100`
+	//insertNotes := `Insert into notes (NoteID, UserID, Name, Information, Time, Status, Delegation, Users) Values (4, 1, 'test', 'test', 'test', 'test', 'test', 'test')`
+	removeNotes := `DELETE FROM notes WHERE NoteID=2`
 
 	userRows, err := db.Query(sqlUser) // $1 and $2 set here. Note sqlStatement could be replaced with literal string
 	if err != nil {
@@ -130,7 +134,7 @@ func main() {
 	}
 	defer userRows.Close()
 
-	noteRows, err := db.Query(sqlNotes) // $1 and $2 set here. Note sqlStatement could be replaced with literal string
+	noteRows, err := db.Query(removeNotes) // $1 and $2 set here. Note sqlStatement could be replaced with literal string
 	if err != nil {
 		log.Fatal(err)
 		fmt.Println("An error occurred when querying data!")
