@@ -10,6 +10,8 @@ import (
 	"log"
 	"strings"
 	"time"
+
+	_ "github.com/lib/pq" // Interface to PostgreSQL library
 )
 
 type Results struct {
