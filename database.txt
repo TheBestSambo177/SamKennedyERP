@@ -1,0 +1,21 @@
+DROP TABLE IF EXISTS notes cascade;
+DROP TABLE IF EXISTS users cascade;
+
+CREATE TABLE notes (
+	UserID int PRIMARY KEY,
+	name VARCHAR (30),
+	Information VARCHAR (30),
+	Time VARCHAR (20),
+	Delegation VARCHAR (30),
+	Users VARCHAR (30)
+);
+
+CREATE TABLE users (
+	UserID int Primary KEY,
+	FirstName VARCHAR (30),
+	LastName VARCHAR (30),
+	Age int,
+	PhoneNumber int,
+	EmailAddress VARCHAR (30)
+);
+
