@@ -48,6 +48,7 @@ type listOfNotes struct {
 }
 
 type Note struct {
+	NoteID      int       `json:"note_id"`
 	UserID      int       `json:"user_id"`
 	Name        string    `json:"name"`
 	Information string    `json:"information"`
@@ -118,6 +119,82 @@ func main() {
 
 	fmt.Println("Connected successfully")
 
+	sqlUser := `SELECT * FROM users LIMIT 100`
+	sqlNotes := `SELECT * FROM notes LIMIT 100`
+
+	userRows, err := db.Query(sqlUser) // $1 and $2 set here. Note sqlStatement could be replaced with literal string
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("An error occurred when querying data!")
+	}
+	defer userRows.Close()
+
+	noteRows, err := db.Query(sqlNotes) // $1 and $2 set here. Note sqlStatement could be replaced with literal string
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("An error occurred when querying data!")
+	}
+	defer noteRows.Close()
+
+	for userRows.Next() {
+
+		var UserID int
+		var FirstName string
+		var LastName string
+		var Age int
+		var PhoneNumber string
+		var EmailAddress string
+
+		switch err = userRows.Scan(&UserID, &FirstName, &LastName, &Age, &PhoneNumber, &EmailAddress); err {
+		case sql.ErrNoRows:
+			fmt.Println("No rows were returned!")
+		case nil:
+			fmt.Println(UserID, "|", FirstName, "|", LastName, "|", Age, "|", PhoneNumber, "|", EmailAddress)
+		default:
+			fmt.Println("SQL query error occurred: ")
+			panic(err)
+		}
+
+	}
+
+	//get any error encountered during User Test
+	err = userRows.Err()
+	if err != nil {
+		panic(err)
+
+	}
+
+	for noteRows.Next() {
+
+		var NoteID int
+		var UserID int
+		var Name string
+		var Information string
+		var Time string
+		var Status string
+		var Delegation string
+		var Users string
+
+		switch err = noteRows.Scan(&NoteID, &UserID, &Name, &Information, &Time, &Status, &Delegation, &Users); err {
+		case sql.ErrNoRows:
+			fmt.Println("No rows were returned!")
+		case nil:
+			fmt.Println(NoteID, "|", UserID, "|", Name, "|", Information, "|", Time, "|", Status, "|", Delegation, "|", Users)
+		default:
+			fmt.Println("SQL query error occurred: ")
+			panic(err)
+		}
+
+	}
+
+	//get any error encountered during User Test
+	err = noteRows.Err()
+	if err != nil {
+		panic(err)
+
+	}
+
+	//Json file stuff
 	var (
 		results listOfNotes
 	)

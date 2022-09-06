@@ -1,6 +1,6 @@
 {
     "notes": [
-        {"UserID": 0, "name":"PGA Work", "Information":"Empty Bins", "Time": "2019-01-21T19:07:28Z", "Status":"To-Do", "Delegation":"Javarn", "Users":"Javarn"},
+        {"NoteID": 1, "UserID": 0, "name":"PGA Work", "Information":"Empty Bins", "Time": "2019-01-21T19:07:28Z", "Status":"To-Do", "Delegation":"Javarn", "Users":"Javarn"},
         {"UserID": 0, "name":"PGA Work", "Information":"Vacumm", "Time": "2019-01-21T19:07:28Z", "Status":"To-Do", "Delegation":"Javarn", "Users":"Javarn"}
 
 

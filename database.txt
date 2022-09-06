@@ -2,15 +2,6 @@ DROP TABLE IF EXISTS notes cascade;
 DROP TABLE IF EXISTS users cascade;
 DROP TABLE IF EXISTS associations cascade;
 
-CREATE TABLE notes (
-	UserID int PRIMARY KEY,
-	name VARCHAR (30),
-	Information VARCHAR (30),
-	Time VARCHAR (20),
-	Delegation VARCHAR (30),
-	Users VARCHAR (30)
-);
-
 CREATE TABLE users (
 	UserID int Primary KEY,
 	FirstName VARCHAR (30),
@@ -20,7 +11,30 @@ CREATE TABLE users (
 	EmailAddress VARCHAR (30)
 );
 
+CREATE TABLE notes (
+	NoteID int PRIMARY KEY,
+	UserID int,
+	name VARCHAR (30),
+	Information VARCHAR (30),
+	Time VARCHAR (20),
+	Status VARCHAR (30),
+	Delegation VARCHAR (30),
+	Users VARCHAR (30),
+	CONSTRAINT fk_UserID
+		FOREIGN KEY(UserID)
+		REFERENCES users(UserID)
+);
+
 CREATE TABLE associations (
 	test VARCHAR (30)
 );
 
+INSERT INTO users (UserID, FirstName, LastName, Age, PhoneNumber, EmailAddress)
+  VALUES
+    (1, 'Sam', 'Kennedy', 20, 0291294534, 'samuel78kennedynz@gmail.com')	
+;
+
+INSERT INTO notes (NoteID, UserID, name, Information, Time, Status, Delegation, Users)
+	VALUES
+	(5, 1, 'GIT', 'get git working', '3213132dsa', 'Doing', 'Sam', 'Sam, Sams PC')
+;
