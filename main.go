@@ -121,6 +121,7 @@ func main() {
 
 	sqlUser := `SELECT * FROM users LIMIT 100`
 	sqlNotes := `SELECT * FROM notes LIMIT 100`
+	//insertNotes := `Insert into notes (NoteID, UserID, Name, Information, Time, Status, Delegation, Users) Values (2, 7, 'test', 'test', 'test', 'test', 'test', 'test')`
 
 	userRows, err := db.Query(sqlUser) // $1 and $2 set here. Note sqlStatement could be replaced with literal string
 	if err != nil {
