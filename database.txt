@@ -4,17 +4,17 @@ DROP TABLE IF EXISTS associations cascade;
 
 CREATE TABLE users (
 	UserID serial PRIMARY KEY,
-	FirstName VARCHAR (30),
-	LastName VARCHAR (30),
-	Age int,
-	PhoneNumber int,
-	EmailAddress VARCHAR (30)
+	FirstName VARCHAR (30) NOT NULL,
+	LastName VARCHAR (30) NOT NULL,
+	Age int NOT NULL,
+	PhoneNumber int NOT NULL,
+	EmailAddress VARCHAR (30) NOT NULL
 );
 
 CREATE TABLE notes (
 	NoteID serial PRIMARY KEY,
 	UserID int,
-	name VARCHAR (30),
+	name VARCHAR (30) NOT NULL,
 	Information VARCHAR (30),
 	Time VARCHAR (20),
 	Status VARCHAR (30),
@@ -37,6 +37,6 @@ INSERT INTO users (FirstName, LastName, Age, PhoneNumber, EmailAddress)
 
 INSERT INTO notes (UserID, name, Information, Time, Status, Delegation, Users)
 	VALUES
-	(1, 'GIT', 'get git working', '3213132dsa', 'Doing', 'Sam', 'Sam, Sams PC'),
+	(2, 'GIT', 'get git working', '3213132dsa', 'Doing', 'Sam', 'Sam, Sams PC'),
 	(2, 'GIT', 'get git working', '3213132dsa', 'Doing', 'Javarn', 'Javarn, Javarn PC')
 ;

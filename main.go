@@ -166,14 +166,67 @@ func addUsers() {
 		log.Fatal("Connection to specified database failed: ", err)
 	}
 
-	sqlAddUsers := `INSERT INTO users (firstname, lastname, age)
-	VALUES ($1, $2, $3)`
-	_, err = db.Exec(sqlAddUsers, "Sam", "K", 20)
+	sqlAddUsers := `INSERT INTO users (firstname, lastname, age, phonenumber, emailaddress)
+	VALUES ($1, $2, $3, $4, $5)`
+	_, err = db.Exec(sqlAddUsers, "Sam", "K", 20, 231, "test@email.com")
 	if err != nil {
 		panic(err)
 	} else {
-		fmt.Println("\nRow Inserted successfully!")
+		fmt.Println("\nUser Inserted successfully!")
 	}
+
+}
+
+//Remove Users
+func removeUsers() {
+	// Create a string that will be used to make a connection later
+	// Note Password has been left out, which is best to avoid issues when using null password
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("Invalid DB arguments, or github.com/lib/pq not installed")
+	}
+
+	defer db.Close() // Housekeeping. Ensure connection is always closed once done
+
+	// Ping database (connection is only established at this point, open only validates arguments passed to it)
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Connection to specified database failed: ", err)
+	}
+
+	//Asks user for id to remove
+	var userRemId int
+	fmt.Println("What ID do you want to remove: ")
+	fmt.Scanln(&userRemId)
+
+	//Remove User from note table
+	sqlRemUserN := `
+	DELETE FROM notes
+	WHERE UserID = $1;`
+	res1, err := db.Exec(sqlRemUserN, userRemId)
+	if err != nil {
+		panic(err)
+	}
+	_, err = res1.RowsAffected()
+	if err != nil {
+		panic(err)
+	}
+	//Remove User from user table
+	sqlRemUser := `
+	DELETE FROM users
+	WHERE UserID = $1;`
+	res2, err := db.Exec(sqlRemUser, userRemId)
+	if err != nil {
+		panic(err)
+	}
+	_, err = res2.RowsAffected()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("row deleted")
 
 }
 
@@ -195,7 +248,7 @@ func main() {
 			} else if firstU == "i" {
 				addUsers()
 			} else if firstU == "r" {
-				i = 0
+				removeUsers()
 			} else if firstU == "s" {
 				i = 0
 			} else if firstU == "b" {
@@ -273,7 +326,7 @@ func main() {
 		var FirstName string
 		var LastName string
 		var Age int
-		var PhoneNumber string
+		var PhoneNumber int
 		var EmailAddress string
 
 		switch err = userRows.Scan(&UserID, &FirstName, &LastName, &Age, &PhoneNumber, &EmailAddress); err {
