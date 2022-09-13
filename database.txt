@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS users cascade;
 DROP TABLE IF EXISTS associations cascade;
 
 CREATE TABLE users (
-	UserID int Primary KEY,
+	UserID serial PRIMARY KEY,
 	FirstName VARCHAR (30),
 	LastName VARCHAR (30),
 	Age int,
@@ -12,7 +12,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE notes (
-	NoteID int PRIMARY KEY,
+	NoteID serial PRIMARY KEY,
 	UserID int,
 	name VARCHAR (30),
 	Information VARCHAR (30),
@@ -29,12 +29,14 @@ CREATE TABLE associations (
 	test VARCHAR (30)
 );
 
-INSERT INTO users (UserID, FirstName, LastName, Age, PhoneNumber, EmailAddress)
+INSERT INTO users (FirstName, LastName, Age, PhoneNumber, EmailAddress)
   VALUES
-    (1, 'Sam', 'Kennedy', 20, 0291294534, 'samuel78kennedynz@gmail.com')	
+    ('Sam', 'Kennedy', 20, 0291291234, 'samuel78kennedynz@gmail.com'),
+	('Javarn', 'Tromp', 19, 0291291235, 'JavarnTromp')
 ;
 
-INSERT INTO notes (NoteID, UserID, name, Information, Time, Status, Delegation, Users)
+INSERT INTO notes (UserID, name, Information, Time, Status, Delegation, Users)
 	VALUES
-	(5, 1, 'GIT', 'get git working', '3213132dsa', 'Doing', 'Sam', 'Sam, Sams PC')
+	(1, 'GIT', 'get git working', '3213132dsa', 'Doing', 'Sam', 'Sam, Sams PC'),
+	(2, 'GIT', 'get git working', '3213132dsa', 'Doing', 'Javarn', 'Javarn, Javarn PC')
 ;

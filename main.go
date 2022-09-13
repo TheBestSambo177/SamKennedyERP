@@ -94,9 +94,135 @@ func dump(arr []Note) {
 }
 
 //Test
+//Select all users
+func selectUsers() {
+	// Create a string that will be used to make a connection later
+	// Note Password has been left out, which is best to avoid issues when using null password
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("Invalid DB arguments, or github.com/lib/pq not installed")
+	}
+
+	defer db.Close() // Housekeeping. Ensure connection is always closed once done
+
+	// Ping database (connection is only established at this point, open only validates arguments passed to it)
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Connection to specified database failed: ", err)
+
+	}
+
+	sqlUser := `SELECT * FROM users LIMIT 100`
+
+	userRows, err := db.Query(sqlUser)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("An error occurred when querying data!")
+	}
+	defer userRows.Close()
+
+	for userRows.Next() {
+
+		var UserID int
+		var FirstName string
+		var LastName string
+		var Age int
+		var PhoneNumber string
+		var EmailAddress string
+
+		switch err = userRows.Scan(&UserID, &FirstName, &LastName, &Age, &PhoneNumber, &EmailAddress); err {
+		case sql.ErrNoRows:
+			fmt.Println("No rows were returned!")
+		case nil:
+			fmt.Println(UserID, "|", FirstName, "|", LastName, "|", Age, "|", PhoneNumber, "|", EmailAddress)
+		default:
+			fmt.Println("SQL query error occurred: ")
+			panic(err)
+		}
+
+	}
+}
+
+//Insert Users
+func addUsers() {
+	// Create a string that will be used to make a connection later
+	// Note Password has been left out, which is best to avoid issues when using null password
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("Invalid DB arguments, or github.com/lib/pq not installed")
+	}
+
+	defer db.Close() // Housekeeping. Ensure connection is always closed once done
+
+	// Ping database (connection is only established at this point, open only validates arguments passed to it)
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Connection to specified database failed: ", err)
+	}
+
+	sqlAddUsers := `INSERT INTO users (firstname, lastname, age)
+	VALUES ($1, $2, $3)`
+	_, err = db.Exec(sqlAddUsers, "Sam", "K", 20)
+	if err != nil {
+		panic(err)
+	} else {
+		fmt.Println("\nRow Inserted successfully!")
+	}
+
+}
 
 // -----------------------------------------------------------------
 func main() {
+	i := 1
+	for i == 1 {
+		fmt.Println("Users (u) | Notes (n) End (x): ")
+		var first string
+		fmt.Scanln(&first)
+		if first == "x" {
+			i = 0
+		} else if first == "u" {
+			var firstU string
+			fmt.Println("NOTES: Select All (a) | Insert (i) | Remove (r) | Search (s) | Back (b): ")
+			fmt.Scanln(&firstU)
+			if firstU == "a" {
+				selectUsers()
+			} else if firstU == "i" {
+				addUsers()
+			} else if firstU == "r" {
+				i = 0
+			} else if firstU == "s" {
+				i = 0
+			} else if firstU == "b" {
+				i = 0
+			} else {
+				fmt.Println("Not a option")
+			}
+
+		} else if first == "n" {
+			var firstN string
+			fmt.Println("USERS: Select All (a) | Insert (i) | Remove (r) | Search (s) | Back (b): ")
+			fmt.Scanln(&firstN)
+			if firstN == "a" {
+				i = 0
+			} else if firstN == "i" {
+				i = 0
+			} else if firstN == "r" {
+				i = 0
+			} else if firstN == "s" {
+				i = 0
+			} else if firstN == "b" {
+				i = 0
+			} else {
+				fmt.Println("Not a option")
+			}
+		}
+	}
 
 	// Create a string that will be used to make a connection later
 	// Note Password has been left out, which is best to avoid issues when using null password
@@ -127,7 +253,7 @@ func main() {
 	//insertNotes := `Insert into notes (NoteID, UserID, Name, Information, Time, Status, Delegation, Users) Values (4, 1, 'test', 'test', 'test', 'test', 'test', 'test')`
 	removeNotes := `DELETE FROM notes WHERE NoteID=2`
 
-	userRows, err := db.Query(sqlUser) // $1 and $2 set here. Note sqlStatement could be replaced with literal string
+	userRows, err := db.Query(sqlUser)
 	if err != nil {
 		log.Fatal(err)
 		fmt.Println("An error occurred when querying data!")
