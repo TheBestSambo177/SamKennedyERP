@@ -93,7 +93,6 @@ func dump(arr []Note) {
 	}
 }
 
-//Test
 //Select all users
 func selectUsers() {
 	// Create a string that will be used to make a connection later
@@ -138,6 +137,60 @@ func selectUsers() {
 			fmt.Println("No rows were returned!")
 		case nil:
 			fmt.Println(UserID, "|", FirstName, "|", LastName, "|", Age, "|", PhoneNumber, "|", EmailAddress)
+		default:
+			fmt.Println("SQL query error occurred: ")
+			panic(err)
+		}
+
+	}
+}
+
+//Select all notes
+func selectNotes() {
+	// Create a string that will be used to make a connection later
+	// Note Password has been left out, which is best to avoid issues when using null password
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("Invalid DB arguments, or github.com/lib/pq not installed")
+	}
+
+	defer db.Close() // Housekeeping. Ensure connection is always closed once done
+
+	// Ping database (connection is only established at this point, open only validates arguments passed to it)
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Connection to specified database failed: ", err)
+
+	}
+
+	sqlNotes := `SELECT * FROM notes LIMIT 100`
+
+	noteRows, err := db.Query(sqlNotes)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("An error occurred when querying data!")
+	}
+	defer noteRows.Close()
+
+	for noteRows.Next() {
+
+		var NoteID int
+		var UserID int
+		var Name string
+		var Information string
+		var Time string
+		var Status string
+		var Delegation string
+		var Users string
+
+		switch err = noteRows.Scan(&NoteID, &UserID, &Name, &Information, &Time, &Status, &Delegation, &Users); err {
+		case sql.ErrNoRows:
+			fmt.Println("No rows were returned!")
+		case nil:
+			fmt.Println(NoteID, "|", UserID, "|", Name, "|", Information, "|", Time, "|", Status, "|", Delegation, "|", Users)
 		default:
 			fmt.Println("SQL query error occurred: ")
 			panic(err)
@@ -266,7 +319,7 @@ func main() {
 			i = 0
 		} else if first == "u" {
 			var firstU string
-			fmt.Println("NOTES: Select All (a) | Insert (i) | Remove (r) | Search (s) | Back (b): ")
+			fmt.Println("Users: Select All (a) | Insert (i) | Remove (r) | Search (s) | Back (b): ")
 			fmt.Scanln(&firstU)
 			if firstU == "a" {
 				selectUsers()
@@ -284,10 +337,10 @@ func main() {
 
 		} else if first == "n" {
 			var firstN string
-			fmt.Println("USERS: Select All (a) | Insert (i) | Remove (r) | Search (s) | Back (b): ")
+			fmt.Println("Notes: Select All (a) | Insert (i) | Remove (r) | Search (s) | Back (b): ")
 			fmt.Scanln(&firstN)
 			if firstN == "a" {
-				i = 0
+				selectNotes()
 			} else if firstN == "i" {
 				i = 0
 			} else if firstN == "r" {
@@ -329,7 +382,6 @@ func main() {
 	//Note querys
 	//sqlNotes := `SELECT * FROM notes LIMIT 100`
 	//insertNotes := `Insert into notes (NoteID, UserID, Name, Information, Time, Status, Delegation, Users) Values (4, 1, 'test', 'test', 'test', 'test', 'test', 'test')`
-	removeNotes := `DELETE FROM notes WHERE NoteID=2`
 
 	userRows, err := db.Query(sqlUser)
 	if err != nil {
@@ -337,13 +389,6 @@ func main() {
 		fmt.Println("An error occurred when querying data!")
 	}
 	defer userRows.Close()
-
-	noteRows, err := db.Query(removeNotes) // $1 and $2 set here. Note sqlStatement could be replaced with literal string
-	if err != nil {
-		log.Fatal(err)
-		fmt.Println("An error occurred when querying data!")
-	}
-	defer noteRows.Close()
 
 	for userRows.Next() {
 
@@ -368,36 +413,6 @@ func main() {
 
 	//get any error encountered during User Test
 	err = userRows.Err()
-	if err != nil {
-		panic(err)
-
-	}
-
-	for noteRows.Next() {
-
-		var NoteID int
-		var UserID int
-		var Name string
-		var Information string
-		var Time string
-		var Status string
-		var Delegation string
-		var Users string
-
-		switch err = noteRows.Scan(&NoteID, &UserID, &Name, &Information, &Time, &Status, &Delegation, &Users); err {
-		case sql.ErrNoRows:
-			fmt.Println("No rows were returned!")
-		case nil:
-			fmt.Println(NoteID, "|", UserID, "|", Name, "|", Information, "|", Time, "|", Status, "|", Delegation, "|", Users)
-		default:
-			fmt.Println("SQL query error occurred: ")
-			panic(err)
-		}
-
-	}
-
-	//get any error encountered during User Test
-	err = noteRows.Err()
 	if err != nil {
 		panic(err)
 

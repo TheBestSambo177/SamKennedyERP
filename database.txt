@@ -37,6 +37,7 @@ INSERT INTO users (FirstName, LastName, Age, PhoneNumber, EmailAddress)
 
 INSERT INTO notes (UserID, name, Information, Time, Status, Delegation, Users)
 	VALUES
-	(2, 'GIT', 'get git working', '3213132dsa', 'Doing', 'Sam', 'Sam, Sams PC'),
+	(1, 'GIT', 'get git working', '3213132dsa', 'Doing', 'Sam', 'Sam, Sams PC'),
+	(1, 'GIT', 'get git working', '3213132dsa', 'Doing', 'Caleb', 'Caleb, Caleb PC'),
 	(2, 'GIT', 'get git working', '3213132dsa', 'Doing', 'Javarn', 'Javarn, Javarn PC')
 ;
