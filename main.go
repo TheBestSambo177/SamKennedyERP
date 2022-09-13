@@ -166,9 +166,34 @@ func addUsers() {
 		log.Fatal("Connection to specified database failed: ", err)
 	}
 
+	//Getting user info
+	//Variables for user
+	var fName string
+	var lName string
+	var age int
+	var phonenumber int
+	var emailaddress string
+
+	//Scanning user input
+	fmt.Print("First Name: ")
+	fmt.Scanln(&fName)
+
+	fmt.Print("Last Name: ")
+	fmt.Scanln(&lName)
+
+	fmt.Print("Age: ")
+	fmt.Scanln(&age)
+
+	fmt.Print("Phone Number: ")
+	fmt.Scanln(&phonenumber)
+
+	fmt.Print("Email Address: ")
+	fmt.Scanln(&emailaddress)
+
+	//Adding user info to database
 	sqlAddUsers := `INSERT INTO users (firstname, lastname, age, phonenumber, emailaddress)
 	VALUES ($1, $2, $3, $4, $5)`
-	_, err = db.Exec(sqlAddUsers, "Sam", "K", 20, 231, "test@email.com")
+	_, err = db.Exec(sqlAddUsers, fName, "K", 20, 231, "test@email.com")
 	if err != nil {
 		panic(err)
 	} else {
