@@ -308,6 +308,66 @@ func removeUsers() {
 
 }
 
+//Search Users
+func searchUsers() {
+	// Create a string that will be used to make a connection later
+	// Note Password has been left out, which is best to avoid issues when using null password
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("Invalid DB arguments, or github.com/lib/pq not installed")
+	}
+
+	defer db.Close() // Housekeeping. Ensure connection is always closed once done
+
+	// Ping database (connection is only established at this point, open only validates arguments passed to it)
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Connection to specified database failed: ", err)
+	}
+
+	//Select * from notes Where name = $1 or text = $1 or status = $1 or delegation = $1 or users = $1;
+
+	//Asks user for id to remove
+	var userSearch string
+	fmt.Println("What do you want to search? ")
+	fmt.Scanln(&userSearch)
+
+	//Search Users from user table
+	sqlSearchUsers := `Select * from users Where firstname = $1 or lastname = $1;`
+
+	searchUsers, err := db.Query(sqlSearchUsers, userSearch)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("An error occurred when querying data!")
+	}
+	defer searchUsers.Close()
+
+	for searchUsers.Next() {
+
+		var UserID int
+		var FirstName string
+		var LastName string
+		var Age int
+		var PhoneNumber string
+		var EmailAddress string
+
+		switch err = searchUsers.Scan(&UserID, &FirstName, &LastName, &Age, &PhoneNumber, &EmailAddress); err {
+		case sql.ErrNoRows:
+			fmt.Println("No rows were returned!")
+		case nil:
+			fmt.Println(UserID, "|", FirstName, "|", LastName, "|", Age, "|", PhoneNumber, "|", EmailAddress)
+		default:
+			fmt.Println("SQL query error occurred: ")
+			panic(err)
+		}
+
+	}
+
+}
+
 // -----------------------------------------------------------------
 func main() {
 	i := 1
@@ -328,9 +388,9 @@ func main() {
 			} else if firstU == "r" {
 				removeUsers()
 			} else if firstU == "s" {
-				i = 0
+				searchUsers()
 			} else if firstU == "b" {
-				i = 0
+				fmt.Println("Going Back")
 			} else {
 				fmt.Println("Not a option")
 			}
@@ -348,7 +408,7 @@ func main() {
 			} else if firstN == "s" {
 				i = 0
 			} else if firstN == "b" {
-				i = 0
+				fmt.Println("Going Back")
 			} else {
 				fmt.Println("Not a option")
 			}
