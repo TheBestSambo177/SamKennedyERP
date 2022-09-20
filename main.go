@@ -4,11 +4,13 @@ package main
 //https://mholt.github.io/json-to-go/
 
 import (
+	"bufio"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"time"
 
 	_ "github.com/lib/pq" // Interface to PostgreSQL library
@@ -221,36 +223,98 @@ func addUsers() {
 
 	//Getting user info
 	//Variables for user
-	var fName string
-	var lName string
-	var age int
-	var phonenumber int
-	var emailaddress string
+
+	//Test
+	//var fName string
+	//var lName string
+	//var age int
+	//var phonenumber int
+	//var emailaddress string
+
+	//Reader to keep input on one line
+	consoleReader := bufio.NewReader(os.Stdin)
 
 	//Scanning user input
 	fmt.Print("First Name: ")
-	fmt.Scanln(&fName)
+	fName, _ := consoleReader.ReadString('\n')
 
 	fmt.Print("Last Name: ")
-	fmt.Scanln(&lName)
+	lName, _ := consoleReader.ReadString('\n')
 
 	fmt.Print("Age: ")
-	fmt.Scanln(&age)
+	age, _ := consoleReader.ReadString('\n')
 
 	fmt.Print("Phone Number: ")
-	fmt.Scanln(&phonenumber)
+	phonenumber, _ := consoleReader.ReadString('\n')
 
 	fmt.Print("Email Address: ")
-	fmt.Scanln(&emailaddress)
+	emailaddress, _ := consoleReader.ReadString('\n')
 
 	//Adding user info to database
 	sqlAddUsers := `INSERT INTO users (firstname, lastname, age, phonenumber, emailaddress)
 	VALUES ($1, $2, $3, $4, $5)`
-	_, err = db.Exec(sqlAddUsers, fName, "K", 20, 231, "test@email.com")
+	_, err = db.Exec(sqlAddUsers, fName, lName, age, phonenumber, emailaddress)
 	if err != nil {
 		panic(err)
 	} else {
 		fmt.Println("\nUser Inserted successfully!")
+	}
+
+}
+
+//Insert Users
+func addNotes() {
+	// Create a string that will be used to make a connection later
+	// Note Password has been left out, which is best to avoid issues when using null password
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("Invalid DB arguments, or github.com/lib/pq not installed")
+	}
+
+	defer db.Close() // Housekeeping. Ensure connection is always closed once done
+
+	// Ping database (connection is only established at this point, open only validates arguments passed to it)
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Connection to specified database failed: ", err)
+	}
+
+	//Getting user info
+	//Variables for user
+	var name string
+	var information string
+	var status string
+	var delegation string
+	var users string
+	var time = time.Now()
+
+	//Scanning user input
+	fmt.Print("Name of note: ")
+	fmt.Scanln(&name)
+
+	fmt.Print("Information of note: ")
+	fmt.Scanln(&information)
+
+	fmt.Print("Status of note: ")
+	fmt.Scanln(&status)
+
+	fmt.Print("Delegation of note: ")
+	fmt.Scanln(&delegation)
+
+	fmt.Print("Users for note: ")
+	fmt.Scanln(&users)
+
+	//Adding note info to database
+	sqlAddNotes := `INSERT INTO notes (userid, name, information, time, status, delegation, users)
+	VALUES ($1, $2, $3, $4, $5, $6, $7)`
+	_, err = db.Exec(sqlAddNotes, 3, name, "Make burgers", time, "Doing", "Sam", "Sam")
+	if err != nil {
+		panic(err)
+	} else {
+		fmt.Println("\nNote Inserted successfully!")
 	}
 
 }
@@ -402,7 +466,7 @@ func main() {
 			if firstN == "a" {
 				selectNotes()
 			} else if firstN == "i" {
-				i = 0
+				addNotes()
 			} else if firstN == "r" {
 				i = 0
 			} else if firstN == "s" {
@@ -435,48 +499,6 @@ func main() {
 	}
 
 	fmt.Println("Connected successfully")
-
-	//User querys
-	sqlUser := `SELECT * FROM users LIMIT 100`
-
-	//Note querys
-	//sqlNotes := `SELECT * FROM notes LIMIT 100`
-	//insertNotes := `Insert into notes (NoteID, UserID, Name, Information, Time, Status, Delegation, Users) Values (4, 1, 'test', 'test', 'test', 'test', 'test', 'test')`
-
-	userRows, err := db.Query(sqlUser)
-	if err != nil {
-		log.Fatal(err)
-		fmt.Println("An error occurred when querying data!")
-	}
-	defer userRows.Close()
-
-	for userRows.Next() {
-
-		var UserID int
-		var FirstName string
-		var LastName string
-		var Age int
-		var PhoneNumber int
-		var EmailAddress string
-
-		switch err = userRows.Scan(&UserID, &FirstName, &LastName, &Age, &PhoneNumber, &EmailAddress); err {
-		case sql.ErrNoRows:
-			fmt.Println("No rows were returned!")
-		case nil:
-			fmt.Println(UserID, "|", FirstName, "|", LastName, "|", Age, "|", PhoneNumber, "|", EmailAddress)
-		default:
-			fmt.Println("SQL query error occurred: ")
-			panic(err)
-		}
-
-	}
-
-	//get any error encountered during User Test
-	err = userRows.Err()
-	if err != nil {
-		panic(err)
-
-	}
 
 	//Json file stuff
 	var (

@@ -16,7 +16,7 @@ CREATE TABLE notes (
 	UserID int,
 	name VARCHAR (30) NOT NULL,
 	Information VARCHAR (30),
-	Time VARCHAR (20),
+	Time VARCHAR (50),
 	Status VARCHAR (30),
 	Delegation VARCHAR (30),
 	Users VARCHAR (30),
@@ -37,7 +37,7 @@ INSERT INTO users (FirstName, LastName, Age, PhoneNumber, EmailAddress)
 
 INSERT INTO notes (UserID, name, Information, Time, Status, Delegation, Users)
 	VALUES
-	(1, 'GIT', 'get git working', '3213132dsa', 'Doing', 'Sam', 'Sam, Sams PC'),
-	(1, 'GIT', 'get git working', '3213132dsa', 'Doing', 'Caleb', 'Caleb, Caleb PC'),
-	(2, 'GIT', 'get git working', '3213132dsa', 'Doing', 'Javarn', 'Javarn, Javarn PC')
+	(1, 'GIT', 'get git working', '2022-07-13 14:54:20.713744+12:00', 'Doing', 'Sam', 'Sam, Sams PC'),
+	(1, 'GIT', 'get git working', '2022-10-13 14:53:20.713744+12:00', 'Doing', 'Caleb', 'Caleb, Caleb PC'),
+	(2, 'GIT', 'get git working', '2022-10-13 14:51:20.713744+12:00', 'Doing', 'Javarn', 'Javarn, Javarn PC')
 ;
