@@ -372,6 +372,45 @@ func removeUsers() {
 
 }
 
+//Remove Notes
+func removeNotes() {
+	// Create a string that will be used to make a connection later
+	// Note Password has been left out, which is best to avoid issues when using null password
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("Invalid DB arguments, or github.com/lib/pq not installed")
+	}
+
+	defer db.Close() // Housekeeping. Ensure connection is always closed once done
+
+	// Ping database (connection is only established at this point, open only validates arguments passed to it)
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Connection to specified database failed: ", err)
+	}
+
+	//Asks user for id to remove
+	var noteRemId int
+	fmt.Println("What ID do you want to remove: ")
+	fmt.Scanln(&noteRemId)
+
+	//Remove User from note table
+	sqlRemNote := `
+	DELETE FROM notes
+	WHERE NoteID = $1;`
+	res1, err := db.Exec(sqlRemNote, noteRemId)
+	if err != nil {
+		panic(err)
+	} else {
+		fmt.Print("Rows Affected: ")
+		fmt.Println(res1.RowsAffected())
+	}
+
+}
+
 //Search Users
 func searchUsers() {
 	// Create a string that will be used to make a connection later
@@ -468,7 +507,7 @@ func main() {
 			} else if firstN == "i" {
 				addNotes()
 			} else if firstN == "r" {
-				i = 0
+				removeNotes()
 			} else if firstN == "s" {
 				i = 0
 			} else if firstN == "b" {
