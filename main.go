@@ -433,13 +433,13 @@ func searchUsers() {
 
 	//Select * from notes Where name = $1 or text = $1 or status = $1 or delegation = $1 or users = $1;
 
-	//Asks user for id to remove
-	var userSearch string
+	var userSearchInput string
 	fmt.Println("What do you want to search? ")
-	fmt.Scanln(&userSearch)
+	fmt.Scanln(&userSearchInput)
+	userSearch := userSearchInput + "%"
 
 	//Search Users from user table
-	sqlSearchUsers := `Select * from users Where firstname = $1 or lastname = $1;`
+	sqlSearchUsers := `Select * from users Where firstname ILIKE $1 or lastname ILIKE $1;`
 
 	searchUsers, err := db.Query(sqlSearchUsers, userSearch)
 	if err != nil {
@@ -471,6 +471,66 @@ func searchUsers() {
 
 }
 
+//Search Notes
+func searchNotes() {
+	// Create a string that will be used to make a connection later
+	// Note Password has been left out, which is best to avoid issues when using null password
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("Invalid DB arguments, or github.com/lib/pq not installed")
+	}
+
+	defer db.Close() // Housekeeping. Ensure connection is always closed once done
+
+	// Ping database (connection is only established at this point, open only validates arguments passed to it)
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Connection to specified database failed: ", err)
+	}
+
+	var userSearchInput string
+	fmt.Println("What do you want to search? ")
+	fmt.Scanln(&userSearchInput)
+	userSearch := userSearchInput + "%"
+
+	//Search Notes from Note table
+	sqlSearchNotes := `Select * from notes Where name ILIKE $1 or information ILIKE $1 or status ILIKE $1 or delegation ILIKE $1 or users ILIKE $1;`
+
+	searchNotes, err := db.Query(sqlSearchNotes, userSearch)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("An error occurred when querying data!")
+	}
+	defer searchNotes.Close()
+
+	for searchNotes.Next() {
+
+		var NoteID int
+		var UserID int
+		var Name string
+		var Information string
+		var Time string
+		var Status string
+		var Delegation string
+		var Users string
+
+		switch err = searchNotes.Scan(&NoteID, &UserID, &Name, &Information, &Time, &Status, &Delegation, &Users); err {
+		case sql.ErrNoRows:
+			fmt.Println("No rows were returned!")
+		case nil:
+			fmt.Println(NoteID, "|", UserID, "|", Name, "|", Information, "|", Time, "|", Status, "|", Delegation, "|", Users)
+		default:
+			fmt.Println("SQL query error occurred: ")
+			panic(err)
+		}
+
+	}
+
+}
+
 // -----------------------------------------------------------------
 func main() {
 	i := 1
@@ -478,39 +538,39 @@ func main() {
 		fmt.Println("Users (u) | Notes (n) End (x): ")
 		var first string
 		fmt.Scanln(&first)
-		if first == "x" {
+		if first == "x" || first == "X" {
 			i = 0
-		} else if first == "u" {
+		} else if first == "u" || first == "U" {
 			var firstU string
 			fmt.Println("Users: Select All (a) | Insert (i) | Remove (r) | Search (s) | Back (b): ")
 			fmt.Scanln(&firstU)
-			if firstU == "a" {
+			if firstU == "a" || firstU == "A" {
 				selectUsers()
-			} else if firstU == "i" {
+			} else if firstU == "i" || firstU == "I" {
 				addUsers()
-			} else if firstU == "r" {
+			} else if firstU == "r" || firstU == "U" {
 				removeUsers()
-			} else if firstU == "s" {
+			} else if firstU == "s" || firstU == "S" {
 				searchUsers()
-			} else if firstU == "b" {
+			} else if firstU == "b" || firstU == "B" {
 				fmt.Println("Going Back")
 			} else {
 				fmt.Println("Not a option")
 			}
 
-		} else if first == "n" {
+		} else if first == "n" || first == "N" {
 			var firstN string
 			fmt.Println("Notes: Select All (a) | Insert (i) | Remove (r) | Search (s) | Back (b): ")
 			fmt.Scanln(&firstN)
-			if firstN == "a" {
+			if firstN == "a" || firstN == "A" {
 				selectNotes()
-			} else if firstN == "i" {
+			} else if firstN == "i" || firstN == "I" {
 				addNotes()
-			} else if firstN == "r" {
+			} else if firstN == "r" || firstN == "R" {
 				removeNotes()
-			} else if firstN == "s" {
-				i = 0
-			} else if firstN == "b" {
+			} else if firstN == "s" || firstN == "S" {
+				searchNotes()
+			} else if firstN == "b" || firstN == "B" {
 				fmt.Println("Going Back")
 			} else {
 				fmt.Println("Not a option")
