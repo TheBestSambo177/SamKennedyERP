@@ -531,6 +531,41 @@ func searchNotes() {
 
 }
 
+func updateUsers() {
+	// Create a string that will be used to make a connection later
+	// Note Password has been left out, which is best to avoid issues when using null password
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("Invalid DB arguments, or github.com/lib/pq not installed")
+	}
+
+	defer db.Close() // Housekeeping. Ensure connection is always closed once done
+
+	// Ping database (connection is only established at this point, open only validates arguments passed to it)
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Connection to specified database failed: ", err)
+	}
+
+	var userID int
+	fmt.Println("What userID do you want to change? ")
+	fmt.Scanln(&userID)
+
+	var userSection string
+	fmt.Println("What section do you want to change? ")
+	fmt.Scanln(&userSection)
+
+	updateUserStatement := `UPDATE users set FirstName = $2, LastName = $3 Where userID = $1;`
+
+	_, err = db.Exec(updateUserStatement, userID, "NewFirst", "NewLast")
+	if err != nil {
+		panic(err)
+	}
+}
+
 // -----------------------------------------------------------------
 func main() {
 	i := 1
@@ -542,7 +577,7 @@ func main() {
 			i = 0
 		} else if first == "u" || first == "U" {
 			var firstU string
-			fmt.Println("Users: Select All (a) | Insert (i) | Remove (r) | Search (s) | Back (b): ")
+			fmt.Println("Users: Select All (a) | Insert (i) | Remove (r) | Search (s) | Update (u) | Back (b): ")
 			fmt.Scanln(&firstU)
 			if firstU == "a" || firstU == "A" {
 				selectUsers()
@@ -552,6 +587,8 @@ func main() {
 				removeUsers()
 			} else if firstU == "s" || firstU == "S" {
 				searchUsers()
+			} else if firstU == "u" || firstU == "U" {
+				updateUsers()
 			} else if firstU == "b" || firstU == "B" {
 				fmt.Println("Going Back")
 			} else {
