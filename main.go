@@ -168,9 +168,9 @@ func selectNotes() {
 
 	}
 
-	sqlNotes := `SELECT * FROM notes LIMIT 100`
+	sqlNotes := `SELECT * FROM notes Where UserID = $1;`
 
-	noteRows, err := db.Query(sqlNotes)
+	noteRows, err := db.Query(sqlNotes, currentUserID)
 	if err != nil {
 		log.Fatal(err)
 		fmt.Println("An error occurred when querying data!")
@@ -310,7 +310,7 @@ func addNotes() {
 	//Adding note info to database
 	sqlAddNotes := `INSERT INTO notes (userid, name, information, time, status, delegation, users)
 	VALUES ($1, $2, $3, $4, $5, $6, $7)`
-	_, err = db.Exec(sqlAddNotes, 3, name, "Make burgers", time, "Doing", "Sam", "Sam")
+	_, err = db.Exec(sqlAddNotes, currentUserID, name, "Make burgers", time, "Doing", "Sam", "Sam")
 	if err != nil {
 		panic(err)
 	} else {
@@ -400,12 +400,20 @@ func removeNotes() {
 	//Remove User from note table
 	sqlRemNote := `
 	DELETE FROM notes
-	WHERE NoteID = $1;`
-	res1, err := db.Exec(sqlRemNote, noteRemId)
+	WHERE NoteID = $1
+	AND UserID = $2;`
+	res1, err := db.Exec(sqlRemNote, noteRemId, currentUserID)
+
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = res1.RowsAffected()
+
 	if err != nil {
 		panic(err)
 	} else {
-		fmt.Print("Rows Affected: ")
+		fmt.Println("Rows Deleted")
 		fmt.Println(res1.RowsAffected())
 	}
 
