@@ -566,51 +566,74 @@ func updateUsers() {
 	}
 }
 
+//Global for var for user
+var currentUserID int = 0
+
 // -----------------------------------------------------------------
 func main() {
 	i := 1
 	for i == 1 {
-		fmt.Println("Users (u) | Notes (n) End (x): ")
-		var first string
-		fmt.Scanln(&first)
-		if first == "x" || first == "X" {
-			i = 0
-		} else if first == "u" || first == "U" {
-			var firstU string
-			fmt.Println("Users: Select All (a) | Insert (i) | Remove (r) | Search (s) | Update (u) | Back (b): ")
-			fmt.Scanln(&firstU)
-			if firstU == "a" || firstU == "A" {
-				selectUsers()
-			} else if firstU == "i" || firstU == "I" {
-				addUsers()
-			} else if firstU == "r" || firstU == "U" {
-				removeUsers()
-			} else if firstU == "s" || firstU == "S" {
-				searchUsers()
-			} else if firstU == "u" || firstU == "U" {
-				updateUsers()
-			} else if firstU == "b" || firstU == "B" {
-				fmt.Println("Going Back")
-			} else {
-				fmt.Println("Not a option")
-			}
+		//Shows the user the ID they are logged into. If not are say no user is logged in.
+		if currentUserID != 0 {
+			println("You are currently logged in as user", currentUserID)
+		} else {
+			println("No user is logged in right now.")
+		}
+		fmt.Println("Sign In (1) | Users (2) | Notes (3) | Sign Out (4) | End (5): ")
+		var userOption int
+		fmt.Scanln(&userOption)
+		if userOption == 1 {
+			fmt.Print("Enter ID: ")
+			var signInInput int
+			fmt.Scanln(&signInInput)
+			currentUserID = signInInput
+		} else if userOption == 5 {
+			break
+		} else if currentUserID == 0 {
+			println("Please Sign to get full use of program")
+		} else {
+			if userOption == 5 {
+				break
+			} else if userOption == 2 {
+				var userOptionUser string
+				fmt.Println("Users: Select All (a) | Insert (i) | Remove (r) | Search (s) | Update (u) | Back (b): ")
+				fmt.Scanln(&userOptionUser)
+				if userOptionUser == "a" || userOptionUser == "A" {
+					selectUsers()
+				} else if userOptionUser == "i" || userOptionUser == "I" {
+					addUsers()
+				} else if userOptionUser == "r" || userOptionUser == "U" {
+					removeUsers()
+				} else if userOptionUser == "s" || userOptionUser == "S" {
+					searchUsers()
+				} else if userOptionUser == "u" || userOptionUser == "U" {
+					updateUsers()
+				} else if userOptionUser == "b" || userOptionUser == "B" {
+					fmt.Println("Going Back")
+				} else {
+					fmt.Println("Not a option")
+				}
 
-		} else if first == "n" || first == "N" {
-			var firstN string
-			fmt.Println("Notes: Select All (a) | Insert (i) | Remove (r) | Search (s) | Back (b): ")
-			fmt.Scanln(&firstN)
-			if firstN == "a" || firstN == "A" {
-				selectNotes()
-			} else if firstN == "i" || firstN == "I" {
-				addNotes()
-			} else if firstN == "r" || firstN == "R" {
-				removeNotes()
-			} else if firstN == "s" || firstN == "S" {
-				searchNotes()
-			} else if firstN == "b" || firstN == "B" {
-				fmt.Println("Going Back")
-			} else {
-				fmt.Println("Not a option")
+			} else if userOption == 3 {
+				var userOptionNote string
+				fmt.Println("Notes: Select All (a) | Insert (i) | Remove (r) | Search (s) | Back (b): ")
+				fmt.Scanln(&userOptionNote)
+				if userOptionNote == "a" || userOptionNote == "A" {
+					selectNotes()
+				} else if userOptionNote == "i" || userOptionNote == "I" {
+					addNotes()
+				} else if userOptionNote == "r" || userOptionNote == "R" {
+					removeNotes()
+				} else if userOptionNote == "s" || userOptionNote == "S" {
+					searchNotes()
+				} else if userOptionNote == "b" || userOptionNote == "B" {
+					fmt.Println("Going Back")
+				} else {
+					fmt.Println("Not a option")
+				}
+			} else if userOption == 4 {
+				currentUserID = 0
+				fmt.Println("You have been signed out.")
 			}
 		}
 	}
