@@ -4,11 +4,11 @@ DROP TABLE IF EXISTS associations cascade;
 
 CREATE TABLE users (
 	UserID serial PRIMARY KEY,
-	FirstName VARCHAR (30) NOT NULL,
-	LastName VARCHAR (30) NOT NULL,
-	Age int NOT NULL,
-	PhoneNumber int NOT NULL,
-	EmailAddress VARCHAR (30) NOT NULL
+	FirstName VARCHAR (30),
+	LastName VARCHAR (30),
+	Age VARCHAR,
+	PhoneNumber VARCHAR,
+	EmailAddress VARCHAR (30)
 );
 
 CREATE TABLE notes (
@@ -31,6 +31,7 @@ CREATE TABLE associations (
 
 INSERT INTO users (FirstName, LastName, Age, PhoneNumber, EmailAddress)
   VALUES
+	('Admin', 'Admin', '30', 0291291250, 'admin@gmail.com'),
     ('Sam', 'Kennedy', 20, 0291291234, 'samuel78kennedynz@gmail.com'),
 	('Javarn', 'Tromp', 19, 0291291235, 'JavarnTromp@gmail.com'),
 	('Mark', 'Lorayne', 25, 0291291236, 'MarkLorayne27@gmail.com'),

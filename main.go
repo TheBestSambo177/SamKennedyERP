@@ -10,9 +10,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq" // Interface to PostgreSQL library
 )
 
@@ -558,20 +560,90 @@ func updateUsers() {
 		log.Fatal("Connection to specified database failed: ", err)
 	}
 
-	var userID int
-	fmt.Println("What userID do you want to change? ")
-	fmt.Scanln(&userID)
+	var userFName string
+	fmt.Println("What do you want first name changed to? ")
+	fmt.Scanln(&userFName)
 
-	var userSection string
-	fmt.Println("What section do you want to change? ")
-	fmt.Scanln(&userSection)
+	var userLName string
+	fmt.Println("What do you want last name changed to? ")
+	fmt.Scanln(&userLName)
 
-	updateUserStatement := `UPDATE users set FirstName = $2, LastName = $3 Where userID = $1;`
+	var userPhoneNumber int
+	fmt.Println("What do you want phone number changed to? ")
+	fmt.Scanln(&userLName)
 
-	_, err = db.Exec(updateUserStatement, userID, "NewFirst", "NewLast")
+	var userEmailAddress int
+	fmt.Println("What do you want email address changed to? ")
+	fmt.Scanln(&userEmailAddress)
+
+	updateUserStatement := `UPDATE users set FirstName = $2, LastName = $3, PhoneNumber = $4,  EmailAddress = $5 Where userID = $1;`
+
+	_, err = db.Exec(updateUserStatement, currentUserID, userFName, userLName, userPhoneNumber, userEmailAddress)
 	if err != nil {
 		panic(err)
 	}
+}
+
+func validate() {
+	//Connect to Database
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("Invalid DB arguments, or github.com/lib/pq not installed")
+	}
+
+	defer db.Close() // Housekeeping. Ensure connection is always closed once done
+
+	// Ping database (connection is only established at this point, open only validates arguments passed to it)
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Connection to specified database failed: ", err)
+	}
+
+	fmt.Print("Enter an ID: ")
+	var userIDExist int
+	fmt.Scanln(&userIDExist)
+
+	//Interact with the database to search for those notes that match user input
+	validateStatement := `Select Count(*) from users where userid = $1`
+	rows, err := db.Query(validateStatement, userIDExist)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("An error occurred when querying data!")
+	}
+
+	if err == sql.ErrNoRows {
+		println("Does not exist")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var count int
+
+		//Print out the recieved data if it is found.
+		switch err = rows.Scan(&count); err {
+		case sql.ErrNoRows:
+			fmt.Println("No rows were returned!")
+			fmt.Println("Showing all notes for user", currentUserID)
+		case nil:
+			if count == 0 {
+				println("Account does not exist.")
+			} else {
+				currentUserID = userIDExist
+			}
+		default:
+			fmt.Println("SQL query error occurred: ")
+			panic(err)
+		}
+	}
+	// get any error encountered during iteration
+	err = rows.Err()
+	if err != nil {
+		panic(err)
+	}
+
 }
 
 //Global for var for user
@@ -579,6 +651,14 @@ var currentUserID int = 0
 
 // -----------------------------------------------------------------
 func main() {
+	var router = gin.Default()
+	var address = ":3000"
+
+	router.GET("/hello", func(c *gin.Context) {
+		c.String(http.StatusOK, "hello world")
+	})
+
+	log.Fatalln(router.Run(address))
 	i := 1
 	for i == 1 {
 		//Shows the user the ID they are logged into. If not are say no user is logged in.
@@ -589,16 +669,24 @@ func main() {
 		}
 		fmt.Println("Sign In (1) | Users (2) | Notes (3) | Sign Out (4) | End (5): ")
 		var userOption int
+
 		fmt.Scanln(&userOption)
 		if userOption == 1 {
-			fmt.Print("Enter ID: ")
-			var signInInput int
-			fmt.Scanln(&signInInput)
-			currentUserID = signInInput
+			validate()
 		} else if userOption == 5 {
 			break
+		} else if userOption == 2 && currentUserID == 0 {
+			var userOptionUser string
+			fmt.Println("Users: Insert (i) | Back (b): ")
+			fmt.Scanln(&userOptionUser)
+			if userOptionUser == "i" || userOptionUser == "I" {
+				addUsers()
+			} else if userOptionUser == "b" || userOptionUser == "B" {
+				fmt.Println("Going Back")
+			}
 		} else if currentUserID == 0 {
 			println("Please Sign to get full use of program")
+
 		} else {
 			if userOption == 5 {
 				break
