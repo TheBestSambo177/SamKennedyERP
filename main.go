@@ -655,7 +655,7 @@ func main() {
 	var address = ":3000"
 
 	router.GET("/hello", func(c *gin.Context) {
-		c.String(http.StatusOK, "hello world")
+		c.String(http.StatusOK, "hello test world")
 	})
 
 	log.Fatalln(router.Run(address))
