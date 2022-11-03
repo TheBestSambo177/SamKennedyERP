@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"time"
 
@@ -652,13 +651,10 @@ var currentUserID int = 0
 // -----------------------------------------------------------------
 func main() {
 	var router = gin.Default()
-	var address = ":3000"
-
-	router.GET("/hello", func(c *gin.Context) {
-		c.String(http.StatusOK, "hello test world")
-	})
+	var address = ":3001"
 
 	log.Fatalln(router.Run(address))
+
 	i := 1
 	for i == 1 {
 		//Shows the user the ID they are logged into. If not are say no user is logged in.
