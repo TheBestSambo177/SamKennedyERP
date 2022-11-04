@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"time"
 
 	_ "github.com/lib/pq" // Interface to PostgreSQL library
 )
@@ -29,6 +30,17 @@ type Users struct {
 	EmailAddress string `json:"email_address"`
 }
 
+type Note struct {
+	NoteID      int       `json:"note_id"`
+	UserID      int       `json:"user_id"`
+	Name        string    `json:"name"`
+	Information string    `json:"information"`
+	Time        time.Time `json:"time"`
+	Status      string    `json:"status"`
+	Delegation  string    `json:"delegation"`
+	Users       string    `json:"users"`
+}
+
 func main() {
 	tmpl := template.Must(template.ParseFiles("forms.html"))
 
@@ -38,7 +50,7 @@ func main() {
 			return
 		}
 
-		details := Users{
+		userDetails := Users{
 			FirstName:    r.FormValue("FirstName"),
 			LastName:     r.FormValue("LastName"),
 			Age:          r.FormValue("Age"),
@@ -66,14 +78,14 @@ func main() {
 		//Adding user info to database
 		sqlAddUsers := `INSERT INTO users (firstname, lastname, age, phonenumber, emailaddress)
 		VALUES ($1, $2, $3, $4, $5)`
-		_, err = db.Exec(sqlAddUsers, details.FirstName, details.LastName, details.Age, details.PhoneNumber, details.EmailAddress)
+		_, err = db.Exec(sqlAddUsers, userDetails.FirstName, userDetails.LastName, userDetails.Age, userDetails.PhoneNumber, userDetails.EmailAddress)
 		if err != nil {
 			panic(err)
 		} else {
 			fmt.Println("\nUser Inserted successfully!")
 		}
 
-		_ = details
+		_ = userDetails
 
 		tmpl.Execute(w, struct{ Success bool }{true})
 	})
