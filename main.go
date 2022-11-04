@@ -13,7 +13,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq" // Interface to PostgreSQL library
 )
 
@@ -650,10 +649,16 @@ var currentUserID int = 0
 
 // -----------------------------------------------------------------
 func main() {
-	var router = gin.Default()
-	var address = ":3001"
+	//var router = gin.Default()
+	//var address = ":3001"
 
-	log.Fatalln(router.Run(address))
+	//router.LoadHTMLGlob("./templates/*")
+
+	//router.GET("/home", func(c *gin.Context) {
+	//	c.HTML(http.StatusOK, "home.html", nil)
+	//})
+
+	//log.Fatalln(router.Run(address))
 
 	i := 1
 	for i == 1 {

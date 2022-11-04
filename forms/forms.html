@@ -1,0 +1,21 @@
+<!-- forms.html -->
+{{if .Success}}
+    <h1>Thanks for your message!</h1>
+{{else}}
+    <p style="text-align:center"></p><h1>Enterprise Notes</h1></p>
+    <h2>Users</h2>
+    <form method="POST">
+        <label>FirstName:</label><br />
+        <input type="text" name="FirstName"><br />
+        <label>LastName:</label><br />
+        <input type="text" name="LastName"><br />
+        <label>Age:</label><br />
+        <input type="text" name="Age"><br />
+        <label>EmailAddress:</label><br />
+        <input type="text" name="EmailAddress"><br />
+        <label>PhoneNumber:</label><br />
+        <input type="text" name="PhoneNumber"><br /><br>
+        <input type="submit">
+    </form>
+{{end}}
+ 
