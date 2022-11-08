@@ -8,22 +8,67 @@
 <head>
     <title>Forms</title>
     <link rel="icon" type="image/x-icon" href="https://img.favpng.com/25/2/19/paper-book-download-png-favpng-WV2SLE1Zr9tJQfgUuWAbPVYu7.jpg">
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
 </head>
     <p style="text-align:center"></p><h1>Enterprise Notes</h1></p>
-    <a href="notes.html" class="btn btn-primary">Go to Notes</a>
-    <h2>Users</h2>
+
+    <h2>Sign In</h2>
+    <label>UserID:</label><br />
+    <input type="number" id="currentUserID" title="Please enter a number" required><br /><br>
+    <button id="signIn">Sign In</button>
+   
+    
+
     <form method="POST">
-        <label>FirstName:</label><br />
-        <input type="text" name="FirstName"><br />
-        <label>LastName:</label><br />
-        <input type="text" name="LastName"><br />
-        <label>Age:</label><br />
-        <input type="text" name="Age"><br />
-        <label>EmailAddress:</label><br />
-        <input type="text" name="EmailAddress"><br />
-        <label>PhoneNumber:</label><br />
-        <input type="text" name="PhoneNumber"><br /><br>
-        <input type="submit">
+        <div class="row">
+            <h2>Add Notes</h2>
+            <label>User ID:</label><br />
+            <input type="number" id="UserInputID" name="UserID" class="readonly" required><br />
+            <label>Note Name:</label><br />
+            <input type="text" name="noteName" required><br />
+            <label>Note Information:</label><br />
+            <input type="text" name="noteInformation" required><br />
+            <label>Note Status:</label><br />
+            <input type="text" name="noteStatus" required><br />
+            <label>Note Delegation:</label><br />
+            <input type="text" name="noteDelegation" required><br />
+            <label>Note Users:</label><br />
+            <input type="text" name="userNote" required><br /><br>
+            <input type="submit" value="addNotes" name="submit">
+        </div>
     </form>
+
+    <form method="POST">
+        <div class="row">
+            <h2>Add Users</h2>
+            <label>FirstName:</label><br />
+            <input type="text" name="FirstName" required><br />
+            <label>LastName:</label><br />
+            <input type="text" name="LastName" required><br />
+            <label>Age:</label><br />
+            <input type="number" name="Age" required><br />
+            <label>EmailAddress:</label><br />
+            <input type="email" name="EmailAddress" required><br />
+            <label>PhoneNumber:</label><br />
+            <input type="number" name="PhoneNumber" required><br /><br>
+            <input type="submit" value="addUsers" name="submit">
+        </div>
+    </form>
+        
+
+        <script>
+            $('#signIn').click(function(event) {               
+                userID = $('#currentUserID').val();                
+                $('#UserInputID').val(userID);
+            });
+        </script>
+
+        <script>
+            $(".readonly").on('keydown paste focus mousedown', function(e){
+                if(e.keyCode != 9) // ignore tab
+                    e.preventDefault();
+            });
+        </script>
+        	
 {{end}}
  
