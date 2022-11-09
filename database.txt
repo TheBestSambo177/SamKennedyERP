@@ -26,7 +26,10 @@ CREATE TABLE notes (
 );
 
 CREATE TABLE associations (
-	test VARCHAR (30)
+	associationsID serial PRIMARY KEY,
+	UserID INT references users(UserID),
+	NoteID INT references notes(NoteID),
+	UserPerms VARCHAR(30)
 );
 
 INSERT INTO users (FirstName, LastName, Age, PhoneNumber, EmailAddress)
@@ -58,4 +61,10 @@ INSERT INTO notes (UserID, name, Information, Time, Status, Delegation, Users)
 	(8, 'Clients', 'Schedule client meetings for the week', '2022-10-20 14:51:20.713744+12:00', 'Doing', 'Gretta', 'Gretta'),
 	(9, 'Staff meeting', 'Organize staff meeting for the week', '2022-10-20 14:51:20.713744+12:00', 'Doing', 'Sterling', 'Sterling'),
 	(10, 'Cleaning', 'Clean the office building for the week', '2022-10-20 14:51:20.713744+12:00', 'Doing', 'Diamond', 'Diamond')
+;
+
+INSERT INTO associations (UserID, NoteID, UserPerms)
+  VALUES
+	(1, 9, 'READ'),
+	(2, 5, 'WRITE')
 ;

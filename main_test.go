@@ -79,6 +79,26 @@ func TestRemoveUser(t *testing.T) {
 
 }
 
-func TestRemoveNote(t *testing.T) {
+func TestRemoveNotes(t *testing.T) {
+
+}
+
+func TestSearchUser(t *testing.T) {
+
+}
+
+func TestSearchNote(t *testing.T) {
+
+}
+
+func TestUpdateUser(t *testing.T) {
+
+}
+
+func TestUpdateNote(t *testing.T) {
+
+}
+
+func TestValidate(t *testing.T) {
 
 }

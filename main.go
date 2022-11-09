@@ -723,6 +723,43 @@ func validate() {
 
 }
 
+//User note Perms
+func userPerms() {
+	//Connect to Database
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("Invalid DB arguments, or github.com/lib/pq not installed")
+	}
+
+	defer db.Close() // Housekeeping. Ensure connection is always closed once done
+
+	// Ping database (connection is only established at this point, open only validates arguments passed to it)
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Connection to specified database failed: ", err)
+	}
+
+	fmt.Println("Check Perms (1) | Add (2) | Remove (3) | Update Out (4): ")
+	var userPermInput int
+	fmt.Scanln(&userPermInput)
+
+	if userPermInput == 1 {
+		//DoSomething
+		//Adding user info to database
+		sqlAddUserPerms := `INSERT INTO associations (noteID, userID, UserPerms)
+							VALUES ($1, $2, $3)`
+		_, err = db.Exec(sqlAddUserPerms, "NoteID", currentUserID, "READ")
+		if err != nil {
+			panic(err)
+		} else {
+			fmt.Println("\nUser Inserted successfully!")
+		}
+	}
+}
+
 //Global for var for user
 var currentUserID int = 0
 
@@ -772,7 +809,7 @@ func main() {
 				break
 			} else if userOption == 2 {
 				var userOptionUser string
-				fmt.Println("Users: Select All (a) | Insert (i) | Remove (r) | Search (s) | Update (u) | Back (b): ")
+				fmt.Println("Users: Select All (a) | Insert (i) | Remove (r) | Search (s) | Update (u) | User Permissions (p) | Back (b): ")
 				fmt.Scanln(&userOptionUser)
 				if userOptionUser == "a" || userOptionUser == "A" {
 					selectUsers()
@@ -784,6 +821,8 @@ func main() {
 					searchUsers()
 				} else if userOptionUser == "u" || userOptionUser == "U" {
 					updateUsers()
+				} else if userOptionUser == "p" || userOptionUser == "P" {
+					userPerms()
 				} else if userOptionUser == "b" || userOptionUser == "B" {
 					fmt.Println("Going Back")
 				} else {
