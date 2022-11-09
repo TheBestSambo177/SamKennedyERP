@@ -168,7 +168,14 @@ func selectNotes() {
 
 	}
 
-	sqlNotes := `SELECT * FROM notes Where UserID = $1;`
+	//User Perms kind of bugs it
+	//This is the old query without user pemrs
+	//sqlNotes := `SELECT * FROM notes where UserID = $1`
+
+	sqlNotes := `SELECT * FROM notes
+				INNER JOIN associations
+				ON notes.UserID = associations.UserID
+				Where notes.UserID = $1 or associations.UserID = $1;`
 
 	noteRows, err := db.Query(sqlNotes, currentUserID)
 	if err != nil {
@@ -188,7 +195,7 @@ func selectNotes() {
 		var Delegation string
 		var Users string
 
-		switch err = noteRows.Scan(&NoteID, &UserID, &Name, &Information, &Time, &Status, &Delegation, &Users); err {
+		switch err = noteRows.Scan(&NoteID, &UserID, &Name, &Information, &Time, &Status, &Delegation, &Users, &Users, &Users, &Users, &Users); err {
 		case sql.ErrNoRows:
 			fmt.Println("No rows were returned!")
 		case nil:
@@ -742,22 +749,107 @@ func userPerms() {
 		log.Fatal("Connection to specified database failed: ", err)
 	}
 
-	fmt.Println("Check Perms (1) | Add (2) | Remove (3) | Update Out (4): ")
+	fmt.Println("Check Perms (1) | Add (2) | Remove (3) | Update (4) | Back (5): ")
 	var userPermInput int
 	fmt.Scanln(&userPermInput)
 
-	if userPermInput == 1 {
-		//DoSomething
+	//Currently no validation
+	if userPermInput == 2 {
 		//Adding user info to database
+		var noteAdd int
+		fmt.Println("What note do you want to add to do you want to add? ")
+		fmt.Scanln(&noteAdd)
+
+		//It currently does not check if the user exists or there are duplicates
+		var userAdd int
+		fmt.Println("What User do you want to add? ")
+		fmt.Scanln(&userAdd)
+
+		var userPerm string
+		fmt.Println("What Perms do you want to give them |READ|WRITE|")
+		fmt.Scanln(&userPerm)
+
 		sqlAddUserPerms := `INSERT INTO associations (noteID, userID, UserPerms)
 							VALUES ($1, $2, $3)`
-		_, err = db.Exec(sqlAddUserPerms, "NoteID", currentUserID, "READ")
+		_, err = db.Exec(sqlAddUserPerms, noteAdd, userAdd, userPerm)
 		if err != nil {
 			panic(err)
 		} else {
-			fmt.Println("\nUser Inserted successfully!")
+			fmt.Println("\nAssociations Inserted successfully!")
 		}
+	} else if userPermInput == 1 {
+		associationsQuery := `SELECT * FROM associations LIMIT 100`
+
+		userRows, err := db.Query(associationsQuery)
+		if err != nil {
+			log.Fatal(err)
+			fmt.Println("An error occurred when querying data!")
+		}
+		defer userRows.Close()
+
+		for userRows.Next() {
+
+			var associationID int
+			var userID int
+			var noteID int
+			var userPerms string
+
+			switch err = userRows.Scan(&associationID, &userID, &noteID, &userPerms); err {
+			case sql.ErrNoRows:
+				fmt.Println("No rows were returned!")
+			case nil:
+				fmt.Println(associationID, "|", userID, "|", noteID, "|", userPerms)
+			default:
+				fmt.Println("SQL query error occurred: ")
+				panic(err)
+			}
+
+		}
+	} else if userPermInput == 3 {
+		//Asks user for id to remove
+		var userPermId int
+		fmt.Println("What ID do you want to remove: ")
+		fmt.Scanln(&userPermId)
+
+		//Remove Association from note table
+		sqlPermDelete := `
+		DELETE FROM associations
+		WHERE associationsID = $1;`
+		res1, err := db.Exec(sqlPermDelete, userPermId)
+		if err != nil {
+			panic(err)
+		}
+		_, err = res1.RowsAffected()
+		if err != nil {
+			panic(err)
+		}
+	} else if userPermInput == 4 {
+		var userAscID int
+		fmt.Println("What ID do you want to change: ")
+		fmt.Scanln(&userAscID)
+
+		var userPermId int
+		fmt.Println("What do you want UserID to change to: ")
+		fmt.Scanln(&userPermId)
+
+		var notePermID int
+		fmt.Println("What do you want NoteID to change to: ")
+		fmt.Scanln(&notePermID)
+
+		var userPerms string
+		fmt.Println("What do you want to change Perms to ")
+		fmt.Scanln(&userPerms)
+
+		updateNotePerm := `UPDATE associations set userID = $2, noteID = $3, userperms = $4 Where associationsID = $1;`
+
+		_, err = db.Exec(updateNotePerm, userAscID, userPermId, notePermID, userPerms)
+		if err != nil {
+			panic(err)
+		}
+	} else if userPermInput == 5 {
+		fmt.Println("Going Back")
 	}
+
 }
 
 //Global for var for user
