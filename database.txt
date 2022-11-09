@@ -14,7 +14,7 @@ CREATE TABLE users (
 CREATE TABLE notes (
 	NoteID serial PRIMARY KEY,
 	UserID int,
-	name VARCHAR (30) NOT NULL,
+	name VARCHAR (30),
 	Information VARCHAR (200),
 	Time VARCHAR (50),
 	Status VARCHAR (30),

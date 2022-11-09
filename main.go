@@ -310,7 +310,7 @@ func addNotes() {
 	//Adding note info to database
 	sqlAddNotes := `INSERT INTO notes (userid, name, information, time, status, delegation, users)
 	VALUES ($1, $2, $3, $4, $5, $6, $7)`
-	_, err = db.Exec(sqlAddNotes, currentUserID, name, "Make burgers", time, "Doing", "Sam", "Sam")
+	_, err = db.Exec(sqlAddNotes, currentUserID, name, information, time, status, delegation, users)
 	if err != nil {
 		panic(err)
 	} else {
@@ -574,12 +574,91 @@ func updateUsers() {
 	fmt.Println("What do you want email address changed to? ")
 	fmt.Scanln(&userEmailAddress)
 
-	updateUserStatement := `UPDATE users set FirstName = $2, LastName = $3, PhoneNumber = $4,  EmailAddress = $5 Where userID = $1;`
+	var userAge int
+	fmt.Println("What do you want age changed to? ")
+	fmt.Scanln(&userAge)
 
-	_, err = db.Exec(updateUserStatement, currentUserID, userFName, userLName, userPhoneNumber, userEmailAddress)
+	updateUserStatement := `UPDATE users set FirstName = $2, LastName = $3, PhoneNumber = $4, Age = $6, EmailAddress = $5 Where userID = $1;`
+
+	_, err = db.Exec(updateUserStatement, currentUserID, userFName, userLName, userPhoneNumber, userEmailAddress, userAge)
 	if err != nil {
 		panic(err)
 	}
+}
+
+func updateNotes() {
+	// Create a string that will be used to make a connection later
+	// Note Password has been left out, which is best to avoid issues when using null password
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("Invalid DB arguments, or github.com/lib/pq not installed")
+	}
+
+	defer db.Close() // Housekeeping. Ensure connection is always closed once done
+
+	// Ping database (connection is only established at this point, open only validates arguments passed to it)
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Connection to specified database failed: ", err)
+	}
+
+	var noteID string
+	fmt.Println("What note do you want to change? ")
+	fmt.Scanln(&noteID)
+
+	var name string
+	fmt.Println("What do you want note name changed to? ")
+	fmt.Scanln(&name)
+
+	var Information string
+	fmt.Println("What do you want information changed to? ")
+	fmt.Scanln(&Information)
+
+	var Status int
+	fmt.Println("What do you want status changed to? ")
+	fmt.Scanln(&Status)
+
+	var Delegation string
+	fmt.Println("What do you want delegation changed to? ")
+	fmt.Scanln(&Delegation)
+
+	var Users string
+	fmt.Println("What do you want users changed to? ")
+	fmt.Scanln(&Users)
+
+	updateNoteStatement := `UPDATE notes set name = $2, Information = $3, Status = $4, Delegation = $6, Users = $5 Where userID = $1 AND noteID = $7;`
+
+	_, err = db.Exec(updateNoteStatement, currentUserID, name, Information, Status, Delegation, Users, noteID)
+	if err != nil {
+		panic(err)
+	}
+
+}
+
+//Still working on
+func analyseNote() {
+	// Create a string that will be used to make a connection later
+	// Note Password has been left out, which is best to avoid issues when using null password
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("Invalid DB arguments, or github.com/lib/pq not installed")
+	}
+
+	defer db.Close() // Housekeeping. Ensure connection is always closed once done
+
+	// Ping database (connection is only established at this point, open only validates arguments passed to it)
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Connection to specified database failed: ", err)
+	}
+
+	fmt.Println("Analyzed Notes")
 }
 
 func validate() {
@@ -713,7 +792,7 @@ func main() {
 
 			} else if userOption == 3 {
 				var userOptionNote string
-				fmt.Println("Notes: Select All (a) | Insert (i) | Remove (r) | Search (s) | Back (b): ")
+				fmt.Println("Notes: Select All (a) | Insert (i) | Remove (r) | Search (s) | Update (u) | Analyze (z) | Back (b): ")
 				fmt.Scanln(&userOptionNote)
 				if userOptionNote == "a" || userOptionNote == "A" {
 					selectNotes()
@@ -723,6 +802,10 @@ func main() {
 					removeNotes()
 				} else if userOptionNote == "s" || userOptionNote == "S" {
 					searchNotes()
+				} else if userOptionNote == "u" || userOptionNote == "U" {
+					updateNotes()
+				} else if userOptionNote == "z" || userOptionNote == "Z" {
+					analyseNote()
 				} else if userOptionNote == "b" || userOptionNote == "B" {
 					fmt.Println("Going Back")
 				} else {
